@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>浇花计算器</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🌸 浇花计算器</h1>
+
+        <div class="form-container">
+            <div class="form-group">
+                <label for="weather">天气状况</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="weather" value="sunny" required>
+                        <span class="radio-label">☀️ 晴天</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="weather" value="cloudy">
+                        <span class="radio-label">☁️ 阴天</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="weather" value="rainy">
+                        <span class="radio-label">🌧️ 下雨</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="temperature">气温（摄氏度）</label>
+                <input type="number" id="temperature" name="temperature"
+                       min="-20" max="50" step="1" required placeholder="请输入气温">
+            </div>
+
+            <div class="form-group">
+                <label>上次浇花时间</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="lastWatering" value="yesterday" required>
+                        <span class="radio-label">昨天</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="lastWatering" value="dayBeforeYesterday">
+                        <span class="radio-label">前天</span>
+                    </label>
+                </div>
+            </div>
+
+            <button id="calculateBtn" class="calculate-btn">计算浇水需求</button>
+        </div>
+
+        <div id="result" class="result hidden">
+            <h2>🌱 浇水建议</h2>
+            <div id="resultContent" class="result-content"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
