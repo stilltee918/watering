@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能浇花计算器</title>
+    <meta name="description" content="专业的浇花计算器，根据天气、气温和上次浇水时间智能推荐浇花频率">
+    <meta name="keywords" content="浇花,计算器,植物养护,浇水时间">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2rem;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #34495e;
+            font-size: 1.1rem;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #3498db;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        input[type="number"]::placeholder {
+            color: #95a5a6;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        .radio-option:hover {
+            border-color: #3498db;
+            background: #f0f8ff;
+            transform: translateY(-2px);
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+            accent-color: #3498db;
+        }
+
+        .radio-option input[type="radio"]:checked + span {
+            color: #3498db;
+            font-weight: 600;
+        }
+
+        .radio-option:has(input:checked) {
+            border-color: #3498db;
+            background: #f0f8ff;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .radio-option span {
+            font-size: 1rem;
+            color: #2c3e50;
+            flex: 1;
+            transition: all 0.3s ease;
+        }
+
+        button {
+            width: 100%;
+            padding: 18px 32px;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 16px;
+            box-shadow: 0 4px 16px rgba(46, 204, 113, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+            background: linear-gradient(135deg, #27ae60, #27ae60);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 32px;
+            padding: 24px;
+            background: linear-gradient(135deg, #f0f8ff, #e8f4fd);
+            border-radius: 12px;
+            border: 2px solid #3498db;
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result h3 {
+            color: #2c3e50;
+            margin-bottom: 16px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-content {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: #34495e;
+        }
+
+        .result-content .condition {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border-left: 4px solid #3498db;
+        }
+
+        .result-content .recommendation {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 16px 0;
+            padding: 16px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .result-content .tips {
+            margin-top: 12px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .emoji-large {
+            font-size: 2.5rem;
+            text-align: center;
+            display: block;
+            margin: 16px 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #e1e8ed;
+            color: #95a5a6;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                padding: 24px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .radio-option {
+                padding: 14px;
+            }
+
+            input[type="number"], button {
+                padding: 14px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .radio-group {
+                flex-direction: row;
+                gap: 16px;
+            }
+
+            .radio-option {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌸 智能浇花计算器</h1>
+        <p class="subtitle">根据天气条件智能推荐最佳浇花时间</p>
+
+        <div class="form-group">
+            <label>天气状况</label>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="weather" value="sunny" required>
+                    <span>☀️ 晴天</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="weather" value="cloudy">
+                    <span>☁️ 阴天</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="weather" value="rainy">
+                    <span>🌧️ 下雨</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="temperature">气温（摄氏度）</label>
+            <input type="number" id="temperature" name="temperature" min="-20" max="50" step="1" required placeholder="请输入当前气温">
+        </div>
+
+        <div class="form-group">
+            <label>上次浇花时间</label>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="lastWatering" value="yesterday" required>
+                    <span>昨天</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="lastWatering" value="dayBeforeYesterday">
+                    <span>前天</span>
+                </label>
+            </div>
+        </div>
+
+        <button onclick="calculateWatering()">💧 计算浇水需求</button>
+
+        <div id="result" class="result">
+            <h3>🌱 专业浇水建议</h3>
+            <div id="resultContent"></div>
+        </div>
+
+        <div class="footer">
+            <p>💚 让每一朵花都得到恰到好处的关爱</p>
+        </div>
+    </div>
+
+    <script>
+        function calculateWatering() {
+            // 获取用户输入
+            const weather = document.querySelector('input[name="weather"]:checked');
+            const temperature = document.getElementById('temperature').value;
+            const lastWatering = document.querySelector('input[name="lastWatering"]:checked');
+
+            // 验证输入
+            if (!weather) {
+                alert('请选择天气状况！');
+                return;
+            }
+
+            if (!temperature) {
+                alert('请输入气温！');
+                return;
+            }
+
+            if (!lastWatering) {
+                alert('请选择上次浇花时间！');
+                return;
+            }
+
+            const temp = parseFloat(temperature);
+            const weatherType = weather.value;
+            const lastWateringTime = lastWatering.value;
+
+            let result = {
+                emoji: '',
+                recommendation: '',
+                reason: '',
+                tips: ''
+            };
+
+            // 计算浇水需求
+            if (weatherType === 'rainy') {
+                result = {
+                    emoji: '🚫💧',
+                    recommendation: '今天不用浇水',
+                    reason: '下雨天气，自然降水已经为植物提供了充足的水分，土壤湿润度很高。',
+                    tips: '雨天是植物自然补充水分的好时机，避免过度浇水导致根部腐烂。'
+                };
+            } else if (weatherType === 'sunny') {
+                if (temp > 30) {
+                    result = {
+                        emoji: '💧💧',
+                        recommendation: '早晚各浇1次（共2次）',
+                        reason: '晴天高温（超过30°C），水分蒸发很快，需要充足的水分补充。',
+                        tips: '建议在早晨和傍晚浇水，避免正午高温时段浇水伤害植物根系。'
+                    };
+                } else if (temp >= 20 && temp <= 30) {
+                    result = {
+                        emoji: '💧',
+                        recommendation: '早上浇1次',
+                        reason: '晴天适中温度（20-30°C），水分蒸发正常，适量浇水即可。',
+                        tips: '早晨是最佳浇水时间，有助于植物在白天进行光合作用。'
+                    };
+                } else {
+                    if (lastWateringTime === 'yesterday') {
+                        result = {
+                            emoji: '🚫💧',
+                            recommendation: '今天不用浇水',
+                            reason: '晴天但气温较低（低于20°C），水分蒸发慢，且昨天刚浇过水。',
+                            tips: '低温时植物需水量减少，避免土壤过湿。'
+                        };
+                    } else {
+                        result = {
+                            emoji: '💧',
+                            recommendation: '浇1次',
+                            reason: '晴天但气温较低（低于20°C），且前天浇过水，土壤需要补充水分。',
+                            tips: '低温浇水要适量，选择在温度较高的中午时段。'
+                        };
+                    }
+                }
+            } else if (weatherType === 'cloudy') {
+                if (temp > 30) {
+                    result = {
+                        emoji: '💧',
+                        recommendation: '浇1次',
+                        reason: '阴天但气温较高（超过30°C），需要适量水分补充。',
+                        tips: '阴天水分蒸发较慢，浇水要比晴天少一些。'
+                    };
+                } else {
+                    if (lastWateringTime === 'yesterday') {
+                        result = {
+                            emoji: '🚫💧',
+                            recommendation: '今天不用浇水',
+                            reason: '阴天温度适中（30°C以下），水分蒸发慢，且昨天刚浇过水。',
+                            tips: '阴天是植物休养生息的好时机，减少浇水有利于根系健康。'
+                        };
+                    } else {
+                        result = {
+                            emoji: '💧',
+                            recommendation: '浇1次',
+                            reason: '阴天温度适中（30°C以下），且前天浇过水，需要补充水分。',
+                            tips: '阴天浇水要控制水量，保持土壤微湿即可。'
+                        };
+                    }
+                }
+            }
+
+            // 获取天气和时间的中文显示
+            const weatherText = {
+                'sunny': '晴天',
+                'cloudy': '阴天',
+                'rainy': '下雨'
+            };
+
+            const lastWateringText = {
+                'yesterday': '昨天',
+                'dayBeforeYesterday': '前天'
+            };
+
+            // 显示结果
+            document.getElementById('resultContent').innerHTML = `
+                <div class="condition">
+                    <strong>当前条件：</strong> ${weatherText[weatherType]}，${temp}°C，上次浇花：${lastWateringText[lastWateringTime]}
+                </div>
+
+                <div class="emoji-large">${result.emoji}</div>
+
+                <div class="recommendation">
+                    <strong>建议：</strong> ${result.recommendation}
+                </div>
+
+                <div><strong>原因：</strong> ${result.reason}</div>
+
+                <div class="tips">
+                    <strong>💡 小贴士：</strong> ${result.tips}
+                </div>
+            `;
+
+            document.getElementById('result').style.display = 'block';
+
+            // 滚动到结果区域
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // 添加回车键支持
+        document.getElementById('temperature').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculateWatering();
+            }
+        });
+    </script>
+</body>
+</html>
